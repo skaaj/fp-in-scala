@@ -28,3 +28,6 @@ build
 
 #general
 *.class
+
+.bloop/
+.metals/

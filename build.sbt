@@ -1,5 +1,16 @@
-name := "fp-in-scala"
+val commonSettings = Seq(
+  scalaVersion := "2.12.10"
+)
 
-version := "0.1"
+lazy val root = (project in file("."))
+  .aggregate(exercises, answers)
+  .settings(commonSettings)
+  .settings(
+    name := "fpinscala"
+  )
 
-scalaVersion := "2.13.0"
+lazy val exercises = (project in file("exercises"))
+  .settings(commonSettings)
+  .settings(
+    name := "exercises"
+  )
