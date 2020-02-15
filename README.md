@@ -1,8 +1,8 @@
 ## Progress
 
 * Chapter 1: introduction
-* Chapter 2: gettingstarted <--
-* Chapter 3: datastructures
+* Chapter 2: gettingstarted
+* Chapter 3: datastructures <--
 * Chapter 4: errorhandling
 * Chapter 5: laziness
 * Chapter 6: state
