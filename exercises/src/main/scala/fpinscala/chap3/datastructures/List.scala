@@ -72,11 +72,28 @@ object List { // `List` companion object. Contains functions for creating and wo
     iter(n, l)
   }
 
-  def dropWhile[A](l: List[A], f: A => Boolean): List[A] = ???
+  @tailrec
+  def dropWhile[A](l: List[A], f: A => Boolean): List[A] = {
+    l match {
+      case Nil => Nil
+      case Cons(head, tail) if f(head) => dropWhile(tail, f)
+      case _ => l
+    }
+  }
 
-  def init[A](l: List[A]): List[A] = ???
+  def init[A](l: List[A]): List[A] = l match {
+    case Nil => Nil
+    case Cons(_, Nil) => Nil
+    case Cons(y, ys) => Cons(y, init(ys))
+  }
 
-  def length[A](l: List[A]): Int = ???
+  def length[A](l: List[A]): Int = {
+    def iter(xs: List[A], acc: Int): Int = xs match {
+      case Nil => acc
+      case Cons(_, ys) => iter(ys, acc + 1)
+    }
+    iter(l, 0)
+  }
 
   def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = ???
 
@@ -89,5 +106,8 @@ object ListTest {
     println(List.tail(l))
     println(List.setHead(l, 0))
     println(List.drop(l, 2))
+    println(List.dropWhile[Int](l, x => x < 3))
+    println(List.init(l))
+    println(List.length(l))
   }
 }
