@@ -95,9 +95,15 @@ object List { // `List` companion object. Contains functions for creating and wo
     iter(l, 0)
   }
 
-  def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = ???
+  def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B =  l match {
+    case Nil => z
+    case Cons(head, tail) => foldLeft(tail, f(z, head))(f)
+  }
 
-  def map[A,B](l: List[A])(f: A => B): List[B] = ???
+  def map[A,B](l: List[A])(f: A => B): List[B] = l match {
+    case Nil => Nil
+    case Cons(head, tail) => Cons(f(head), map(tail)(f))
+  }
 }
 
 object ListTest {
@@ -109,5 +115,7 @@ object ListTest {
     println(List.dropWhile[Int](l, x => x < 3))
     println(List.init(l))
     println(List.length(l))
+    println(List.foldLeft(l, 0)(_ + _))
+    println(List.map(l)(_ * 2))
   }
 }
