@@ -14,11 +14,14 @@ sealed trait Option[+A] {
     case None => default
   }
 
-  def flatMap[B](f: A => Option[B]): Option[B] = ???
+  def flatMap[B](f: A => Option[B]): Option[B] = map(f).getOrElse(None)
 
-  def orElse[B>:A](ob: => Option[B]): Option[B] = ???
+  def orElse[B>:A](ob: => Option[B]): Option[B] = map(x => Some(x)).getOrElse(ob)
 
-  def filter(f: A => Boolean): Option[A] = ???
+  def filter(f: A => Boolean): Option[A] = flatMap { x =>
+    if(f(x)) Some(x)
+    else None
+  }
 }
 case class Some[+A](get: A) extends Option[A]
 case object None extends Option[Nothing]
@@ -51,4 +54,21 @@ object Option {
   def sequence[A](a: List[Option[A]]): Option[List[A]] = ???
 
   def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = ???
+}
+
+object OptionRunner {
+  def main(args: Array[String]): Unit = {
+    val noneInt: Option[Int] = None
+    println(Some(1).map(_ * 10))
+    println(noneInt.map(_ * 10))
+    println(Some(1).getOrElse(0))
+    println(noneInt.getOrElse(0))
+    println(Some(1).flatMap(_ => Some(42)))
+    println(noneInt.flatMap(_ => None))
+    println(Some(1).orElse(Some(2)))
+    println(noneInt.orElse(Some(2)))
+    println(Some(1).filter(x => x > 0))
+    println(Some(1).filter(x => x < 0))
+    println(noneInt.filter(x => x > 0))
+  }
 }
