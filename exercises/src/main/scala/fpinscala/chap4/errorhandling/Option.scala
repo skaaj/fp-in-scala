@@ -1,7 +1,7 @@
 package fpinscala.chap4.errorhandling
 
 
-import scala.{Option => _, Some => _, Either => _, _} // hide std library `Option`, `Some` and `Either`, since we are writing our own in this chapter
+import scala.{Either => _, Option => _, Some => _, _} // hide std library `Option`, `Some` and `Either`, since we are writing our own in this chapter
 
 sealed trait Option[+A] {
   def map[B](f: A => B): Option[B] = this match {
@@ -51,15 +51,22 @@ object Option {
   def variance(xs: Seq[Double]): Option[Double] =
     mean(xs).flatMap(m => mean(xs.map(x => math.pow(x - m, 2))))
 
-  def map2[A,B,C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = ???
+  def map2[A,B,C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] =
+    a.flatMap(va => b.map(vb => f(va, vb)))
 
-  def sequence[A](a: List[Option[A]]): Option[List[A]] = ???
+  def sequence[A](a: List[Option[A]]): Option[List[A]] =
+    a.foldRight(Some(List.empty): Option[List[A]])((x, xs) => map2(x, xs)(_ :: _))
 
-  def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = ???
+  def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] =
+    a.foldRight(Some(List.empty): Option[List[B]])((x, xs) => map2(f(x), xs)(_ :: _))
+
+  def sequenceFromTraverse[A](a: List[Option[A]]): Option[List[A]] =
+    traverse(a)(x => x)
 }
 
 object OptionRunner {
   def main(args: Array[String]): Unit = {
+    def onlyEven(x: Int): Option[Int] = if(x % 2 == 0) Some(x) else None
     val noneInt: Option[Int] = None
     println(Some(1).map(_ * 10))
     println(noneInt.map(_ * 10))
@@ -72,7 +79,12 @@ object OptionRunner {
     println(Some(1).filter(x => x > 0))
     println(Some(1).filter(x => x < 0))
     println(noneInt.filter(x => x > 0))
-    println(Option.mean(Seq(2, 4, 6)))
-    println(Option.variance(Seq(2, 4, 6)))
+    println(Option.mean(List(2, 4, 6)))
+    println(Option.variance(List(2, 4, 6)))
+    println(Option.sequence(List(None, None)))
+    println(Option.sequence(List(Some(1), Some(2))))
+    println(Option.sequence(List(Some(1), None, Some(2))))
+    println(Option.traverse(List(1, 2))(onlyEven))
+    println(Option.traverse(List(2, 4))(onlyEven))
   }
 }
