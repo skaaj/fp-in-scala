@@ -4,9 +4,16 @@ package fpinscala.chap4.errorhandling
 import scala.{Option => _, Either => _, Left => _, Right => _, _} // hide std library `Option` and `Either`, since we are writing our own in this chapter
 
 sealed trait Either[+E,+A] {
- def map[B](f: A => B): Either[E, B] = ???
+ def map[B](f: A => B): Either[E, B] = this match {
+   case Right(value) => Right(f(value))
+   case left @ Left(_) => left
+ }
 
- def flatMap[EE >: E, B](f: A => Either[EE, B]): Either[EE, B] = ???
+ def flatMap[EE >: E, B](f: A => Either[EE, B]): Either[EE, B] = this match {
+   case Right(value) => f(value)
+   case left @ Left(_) => left
+ }
+
 
  def orElse[EE >: E, B >: A](b: => Either[EE, B]): Either[EE, B] = ???
 
@@ -34,4 +41,13 @@ object Either {
     try Right(a)
     catch { case e: Exception => Left(e) }
 
+}
+
+object EitherRunner {
+  def main(args: Array[String]): Unit = {
+    val eitherError: Either[String, Int] = Left("some error")
+    println(Right(21).map(_ * 2))
+    println(eitherError.map(_ * 2))
+    println(Right(21).flatMap(_ => Left("oops")))
+  }
 }
