@@ -14,10 +14,14 @@ sealed trait Either[+E,+A] {
    case left @ Left(_) => left
  }
 
+ def orElse[EE >: E, B >: A](b: => Either[EE, B]): Either[EE, B] = this match {
+   case right @ Right(_) => right
+   case _ => b
+ }
 
- def orElse[EE >: E, B >: A](b: => Either[EE, B]): Either[EE, B] = ???
-
- def map2[EE >: E, B, C](b: Either[EE, B])(f: (A, B) => C): Either[EE, C] = ???
+ def map2[EE >: E, B, C](b: Either[EE, B])(f: (A, B) => C): Either[EE, C] = {
+   flatMap(va => b.map(vb => f(va, vb)))
+ }
 }
 case class Left[+E](get: E) extends Either[E,Nothing]
 case class Right[+A](get: A) extends Either[Nothing,A]
@@ -49,5 +53,10 @@ object EitherRunner {
     println(Right(21).map(_ * 2))
     println(eitherError.map(_ * 2))
     println(Right(21).flatMap(_ => Left("oops")))
+    println(eitherError.orElse(Right(42)))
+    println(Right(21).orElse(Right(42)))
+    println(Right(21).map2(Right(21))(_ + _))
+    println(eitherError.map2(Right(21))(_ + _))
+    println(Right(21).map2(eitherError)(_ + _))
   }
 }
