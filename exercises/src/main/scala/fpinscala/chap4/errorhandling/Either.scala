@@ -27,7 +27,8 @@ case class Left[+E](get: E) extends Either[E,Nothing]
 case class Right[+A](get: A) extends Either[Nothing,A]
 
 object Either {
-  def traverse[E,A,B](es: List[A])(f: A => Either[E, B]): Either[E, List[B]] = ???
+  def traverse[E,A,B](es: List[A])(f: A => Either[E, B]): Either[E, List[B]] =
+    es.foldRight(Right(List.empty): Either[E, List[B]])((x, xs) => f(x).map2(xs)(_ :: _))
 
   def sequence[E,A](es: List[Either[E,A]]): Either[E,List[A]] = ???
 
@@ -50,6 +51,7 @@ object Either {
 object EitherRunner {
   def main(args: Array[String]): Unit = {
     val eitherError: Either[String, Int] = Left("some error")
+    def onlyEven(x: Int): Either[String, Int] = if(x % 2 == 0) Right(x) else Left("nope")
     println(Right(21).map(_ * 2))
     println(eitherError.map(_ * 2))
     println(Right(21).flatMap(_ => Left("oops")))
@@ -58,5 +60,7 @@ object EitherRunner {
     println(Right(21).map2(Right(21))(_ + _))
     println(eitherError.map2(Right(21))(_ + _))
     println(Right(21).map2(eitherError)(_ + _))
+    println(Either.traverse(List(2, 4))(onlyEven))
+    println(Either.traverse(List(1, 2))(onlyEven))
   }
 }
