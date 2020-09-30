@@ -30,7 +30,8 @@ object Either {
   def traverse[E,A,B](es: List[A])(f: A => Either[E, B]): Either[E, List[B]] =
     es.foldRight(Right(List.empty): Either[E, List[B]])((x, xs) => f(x).map2(xs)(_ :: _))
 
-  def sequence[E,A](es: List[Either[E,A]]): Either[E,List[A]] = ???
+  def sequence[E,A](es: List[Either[E,A]]): Either[E,List[A]] =
+    es.foldRight(Right(List.empty): Either[E, List[A]])((x, xs) => x.map2(xs)(_ :: _))
 
   def mean(xs: IndexedSeq[Double]): Either[String, Double] = 
     if (xs.isEmpty) 
@@ -62,5 +63,7 @@ object EitherRunner {
     println(Right(21).map2(eitherError)(_ + _))
     println(Either.traverse(List(2, 4))(onlyEven))
     println(Either.traverse(List(1, 2))(onlyEven))
+    println(Either.sequence(List(Right(1), Right(2))))
+    println(Either.sequence(List(Right(1), Left("nope"), Right(3), Left("really, nope"))))
   }
 }
